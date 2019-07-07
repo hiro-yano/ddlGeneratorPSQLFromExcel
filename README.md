@@ -38,8 +38,10 @@ End Sub
 ```
 ## Sample 
 Please refer to sample.xlsm in this repository.
+https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/sample.xlsm
+
 The below diagram shows the ER diagram of data model written in sample.xlsm.
-![ER diagram](https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/er_diagram.png)
+<img src="https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/er_diagram.png" width="600px">
 
 ## Contribution
 
