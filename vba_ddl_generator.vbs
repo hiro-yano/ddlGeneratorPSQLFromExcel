@@ -112,6 +112,8 @@ Function CreateTable(saveName, tableHeader As tableHeader)
             End If
         End If
 
+        Dim fkWork: fkWork = Range(tableHeader.rowConstr & lineNo).Value
+        
         ' References
         If fkWork Like "*REFERENCES*" Then
         
