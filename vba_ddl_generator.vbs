@@ -4,7 +4,7 @@ Const ownerName = "postgres"
 
 'ignoreCase_: ingnore upper or lower cases, global_: one pattern string is matched multiple times
 
-Public Function getRegexp(target, matchPattern, Optional ignoreCase_ = True, Optional global_ = True)
+Private Function getRegexp(target, matchPattern, Optional ignoreCase_ = True, Optional global_ = True)
     
     Dim regex As RegExp
     Dim matches As MatchCollection
@@ -103,8 +103,6 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
         End If
     
         Dim fkWork: fkWork = Range(tableHeader.rowConstr & lineNo).Value
-
-        Debug.Print "fkey:" & fkWork
         
         ' Unique
         If InStr(fkWork, "UNIQUE") <> 0 Then
@@ -112,12 +110,10 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
             Dim unique: unique = ""
             
             unique = getRegexp(fkWork, "UNIQUE\(.*\)", False)
-            
-            Debug.Print "unique:" & unique
 
             If unique <> "" Then
                 unique = Replace(fkWork, "UNIQUE", "")
-                alters = alters & "ALTER TABLE ONLY " & tableName & " ADD CONSTRAINT m_" & tableName & "_" & ColumnName & "_uq UNIQUE (" & unique & ");" & vbNewLine
+                alters = alters & "ALTER TABLE ONLY " & tableName & " ADD CONSTRAINT m_" & tableName & "_" & ColumnName & "_uq UNIQUE " & unique & ";" & vbNewLine
             Else
                 alters = alters & "ALTER TABLE ONLY " & tableName & " ADD CONSTRAINT m_" & tableName & "_" & ColumnName & "_uq UNIQUE (" & ColumnName & ");" & vbNewLine
             End If
@@ -128,8 +124,6 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
         
             Dim references: references = ""
             references = getRegexp(fkWork, "REFERENCES\(.*\)", False)
-            
-            Debug.Print "references:" & references
 
             If references <> "" Then
                 Dim tblName: tblName = Replace(references, "REFERENCES(", "")
@@ -157,13 +151,11 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
     alters = alters & "ALTER TABLE public." & tableName & " OWNER TO " & ownerName & ";" & vbNewLine
     
     '
-    Str = Str & "--- Table「" & tableName & "」" & vbNewLine
+    Str = Str & "--- Table""" & tableName & """" & vbNewLine
     Str = Str & "CREATE TABLE " & tableName & " (" & vbNewLine
     Str = Str & fields
     Str = Str & ");" & vbNewLine
     Str = Str & alters & vbNewLine
-    
-    Debug.Print Str
     
     CreateTable = Str
 End Function
@@ -188,6 +180,7 @@ Private Function SetSaveDir()
             Exit Function
         End If
     On Error GoTo 0
+    
     SetSaveDir = myPath
 End Function
 
@@ -212,6 +205,7 @@ Private Function FileWrite(saveName, data)
         .Close
     End With
     
+    
     'delete an object from memory
     Set mySrm = Nothing
 
@@ -228,7 +222,7 @@ Sub generateDDL()
     Dim n As Date
     n = now
     
-    saveName = saveDir & "ddl_" & Format(n, "yyyy-mm-dd-hh-mm-ss") & ".sql"
+    saveName = saveDir & "\ddl_" & Format(n, "yyyy-mm-dd-hh-mm-ss") & ".sql"
     
     Dim sqlStr As String
     sqlStr = ""
