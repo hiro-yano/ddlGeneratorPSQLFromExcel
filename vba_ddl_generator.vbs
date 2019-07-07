@@ -2,9 +2,9 @@ Option Explicit
 
 Const ownerName = "postgres"
 
-'ignoreCasesは大文字小文字区別するかどうか　global_は複数回マッチングするかどうか
+'ignoreCases: ingnore upper or lower cases, global_: one pattern string is matched multiple times
 Public Function getRegexp(target, matchPattern, Optional ignoreCases = True, Optional global_ = True)
-    Dim rm As Object
+
     Set re = CreateObject("VBScript.RegExp")
 
     With re
@@ -13,7 +13,8 @@ Public Function getRegexp(target, matchPattern, Optional ignoreCases = True, Opt
         .Global = global_
     End With
 
-    Dim result = re.Execute(target)
+    Dim result As Object
+    result = re.Execute(target)
 
     If result.Count > 0 Then
         getRegexp = result(0)
@@ -36,10 +37,10 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
     Dim pkey: pkey = ""
     Do
         Dim nn As String
-        If StrComp("NOT NULL", Range(rowNotNull & lineNo).Value) = 0 Then
+        If StrComp("y", Range(rowNotNull & lineNo).Value) = 0 Then
             nn = " NOT NULL"
         ElseIf StrComp("", Range(rowNotNull & lineNo).Value) <> 0 Then
-            MsgBox "セル(" & rowNotNull & lineNo & ")に想定外の文字が指定されています：" & Range(rowNotNull & lineNo).Value
+            MsgBox "Unexpected string in Cell(" & rowNotNull & lineNo & ")：" & Range(rowNotNull & lineNo).Value
         Else
             nn = ""
         End If
@@ -50,7 +51,7 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
         If StrComp("varchar", tVal) = 0 Then
             Dim dlen As String: dlen = Range(rowLen & lineNo).Value
             If dlen = "" Then
-                MsgBox "varchar(n)に長さが指定されていません"
+                MsgBox "length n of varchar(n) is not specified."
                 Exit Function
             End If
             dtype = "character varying(" & dlen & ")"
@@ -85,13 +86,13 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
         fields = fields & " " & ColumnName & " " & dtype & nn & vbNewLine
         
         ' Primary Key
-        If StrComp("○", Range(rowPkey & lineNo).Value) = 0 Then
+        If StrComp("y", Range(rowPkey & lineNo).Value) = 0 Then
             If Len(pkey) <> 0 Then
                 pkey = pkey & ","
             End If
             pkey = pkey & ColumnName
         ElseIf StrComp("", Range(rowPkey & lineNo).Value) <> 0 Then
-            MsgBox "セル(" & rowPkey & lineNo & ")に想定外の文字が指定されています：" & Range(rowPkey & lineNo).Value
+            MsgBox "Unexpected string in Cell (" & rowPkey & lineNo & ")：" & Range(rowPkey & lineNo).Value
             Exit Function
         End If
     
@@ -101,7 +102,7 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
         If fkWork Like "*UNIQUE*" Then
         
             Dim unique: unique = ""
-            unique = getRegexp(fkWork, "UNIQUE\(.*?)\)")
+            unique = getRegexp(fkWork, "UNIQUE(.*?))")
 
             If unique <> "" Then
                 unique = Replace(fkWork, "UNIQUE", "")
@@ -115,59 +116,59 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
         If fkWork Like "*REFERENCES*" Then
         
             Dim references: references = ""
-            references = getRegexp(fkWork, "REFERENCES\(.*?)\)")
+            references = getRegexp(fkWork, "REFERENCES(.*?))")
 
             If references <> "" Then
-                Dim tblName: tblName = Replace(references, "REFERENCES(", "" )
-                tblName = Replace(tblName, ")", ")
+                Dim tblName: tblName = Replace(references, "REFERENCES(", "")
+                tblName = Replace(tblName, ")", "")
                 Dim colName: colName = "id"
 
-                ' FKの設定
+                'Set Foreign Key
                 alters = alters & "ALTER TABLE ONLY " & tableName & " ADD CONSTRAINT fk_" & tableName & "_" & ColumnName & " FOREIGN KEY (" & ColumnName & ") REFERENCES " & tblName & "(" & colName & ");" & vbNewLine
 
             End If
         End If
     
-        ' カラムのコメント
+        ' Comment on each column
         alters = alters & "COMMENT ON COLUMN " & tableName & "." & ColumnName & " IS '" & Range(rowCommentCol & lineNo).Value & "';" & vbNewLine
 
         lineNo = lineNo + 1
     Loop While Range(rowCommentCol & lineNo).Value <> ""
     
-    ' テーブルのコメント
+    ' Comment on table
     If Len(pkey) <> 0 Then
         alters = alters & "ALTER TABLE ONLY " & tableName & " ADD CONSTRAINT m_" & tableName & "_pkey PRIMARY KEY (" & pkey & ");" & vbNewLine
     End If
     alters = alters & "COMMENT ON TABLE " & tableName & " IS '" & Range(rowCommentTbl).Value & "';" & vbNewLine
     alters = alters & "ALTER TABLE public." & tableName & " OWNER TO " & ownerName & ";" & vbNewLine
     
-    ' くっつける
-    Str = Str & "--- テーブル「" & tableName & "」" & vbNewLine
+    '
+    Str = Str & "--- Table「" & tableName & "」" & vbNewLine
     Str = Str & "CREATE TABLE " & tableName & " (" & vbNewLine
     Str = Str & fields
     Str = Str & ");" & vbNewLine
     Str = Str & alters & vbNewLine
-    '戻す
+    
     CreateTable = Str
 End Function
 
 Function SetSaveDir()
-    '*** 保存するパスの設定
-    Dim myPath As String            'フォルダパス
+    '*** Set saving path
+    Dim myPath As String            'path_dir
     Dim ShellApp As Object
     Dim oFolder As Object
     Set ShellApp = CreateObject("Shell.Application")
-    Set oFolder = ShellApp.BrowseForFolder(0, "フォルダ選択", 1)
+    Set oFolder = ShellApp.BrowseForFolder(0, "Please choose a directory", 1)
     If oFolder Is Nothing Then Exit Function
     On Error Resume Next
         myPath = oFolder.Items.Item.Path
         If Err.Number = 91 Then
-            'デスクトップが選択された場合は、直接取得する
+            'If "Desktop" is chosen, get its path directory
             myPath = CreateObject("WScript.Shell").SpecialFolders("Desktop")
             Err.Clear
         End If
         If Dir(myPath, vbDirectory) = "" Then
-            MsgBox "保存するフォルダがありません。保存フォルダ： " & myPath
+            MsgBox "Saving directory doesn't exist. saving directory： " & myPath
             Exit Function
         End If
     On Error GoTo 0
@@ -175,66 +176,75 @@ Function SetSaveDir()
 End Function
 
 Sub FileWrite(saveName, data)
-    Const adTypeText = 2            '出力するためのConst
-    Const adSaveCreateOverWrite = 2 '出力するためのConst
+    Const adTypeText = 2            'Const value to output
+    Const adSaveCreateOverWrite = 2 'Const value to output
     Const adWriteLine = 1
     
     Dim mySrm As Object
     Set mySrm = CreateObject("ADODB.Stream")
     With mySrm
-        '*** UTF-8で出力するためのADOを読み込み　start
+        '*** read ADO in UTF-8 to output
         .Open
         .Type = adTypeText
         .Charset = "UTF-8"
-        '*** UTF-8で出力するためのADOを読み込み　End
         
-        'オブジェクトの内容をファイルに保存
+        'write an object to a file
         .WriteText data, adWriteLine
         .SaveToFile (saveName), adSaveCreateOverWrite
 
-        'オブジェクトを閉じる
+        'close an object
         .Close
     End With
     
-    'メモリからオブジェクトを削除する
+    'delete an object from memory
     Set mySrm = Nothing
 
 End Sub
 
-Sub DDL作成_Click()
+Sub generateDDL()
     Dim saveName
     Dim saveDir
     saveDir = SetSaveDir()
     If Len(saveDir) = 0 Then
         Exit Sub
     End If
-    saveName = saveDir & "\hoge.sql"
+    
+    Dim n As Date
+    n = now
+    
+    saveName = saveDir & "ddl_" & Format(n, "yyyy-mm-dd-hh-mm-ss") & ".sql"
     
     Dim sqlStr As String
     sqlStr = ""
-    Sheets("テーブル一覧").Select
-    ' 描画停止
+    Sheets("table list").Select
+    ' Stop painting
     Application.ScreenUpdating = False
     Do
         ActiveSheet.Next.Activate
         
-        Dim cellTableName: cellTableName   = "A1"  'テーブル名のセル
-        Dim lineNoFirstCol: lineNoFirstCol = 5     'フィールドの開始行番号
-        Dim rowNotNull: rowNotNull         = "X"   'NNの列名
-        Dim rowDType:rowDType              = "R"   'データ型の列名
-        Dim rowLen: rowLen                 = "U"   '長さの列名
-        Dim rowPkey: rowPkey               = "W"   'PKの列名
-        Dim rowConstr: rowConstr           = "Y"   '制約(UQ,FK)の列名
-        Dim rowColName: rowColName         = "J"   '物理名の列名
-        Dim rowCommentCol: rowCommentCol   = "C"   'カラムコメントの列名
-        Dim rowCommentTbl: rowCommentTbl   = "V"   'テーブルコメントの列名 
+        Dim cellTableName      : cellTableName = "B1"       'Cell of table name
+        Dim rowCommentTbl      : rowCommentTbl = "E1"       'row name of comment on a table
+        
+        Dim lineNoFirstCol     : lineNoFirstCol = 4         'First column number of filelds
+        
+        Dim rowColName         : rowColName = "A"           'row name of physical column name
+        Dim rowDType           : rowDType = "B"             'row name of data type
+        Dim rowLen             : rowLen = "C"               'row name of length
+        Dim rowPkey            : rowPkey = "D"              'row name of PK which is specified or not
+        Dim rowNotNull         : rowNotNull = "E"           'row name of NN which is specified or not
+        Dim rowReferences      : rowReferences = "F"        'row name of FK which is specified or not
+        Dim rowReferencingTable: rowReferencingTable = "G"  'row name of Referencing Table list
+        Dim rowUnique          : rowUnique = "H"            'row name of UNIQUE which is specified or not
+        Dim rowUniqueColumn    : rowUniqueColumn = "I"      'row name of Unique Column
+        Dim rowCommentCol      : rowCommentCol = "J"        'row name of comment on each column
 
-        sqlStr = sqlStr & CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDType, rowLen, rowPkey, rowConstr, rowColName, rowCommentCol, rowCommentTbl)
-    Loop While ActiveSheet.Name <> Sheets(Sheets.Count).Name ' 最後のシートまで
+        sqlStr = sqlStr & CreateTable(saveName, cellTableName, rowCommentTbl, lineNoFirstCol, rowColName    , rowDType      , rowLen        , rowPkey       , rowNotNull    , rowReferences , rowReferencing, rowUnique     , rowUniqueColum, rowCommentCol      )
+
+    Loop While ActiveSheet.Name <> Sheets(Sheets.Count).Name ' Loop until last worksheets
     
-    'ファイルに出力する
+    ' Write to a file
     Call FileWrite(saveName, sqlStr)
-    ' 描画開始
+    ' Start painting
     Application.ScreenUpdating = True
-    MsgBox "処理が終了しました"
+    MsgBox "done"
 End Sub
