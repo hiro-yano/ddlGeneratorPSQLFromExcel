@@ -20,7 +20,7 @@ NOTE: *You must define a PRIMARY KEY on the "id" column in all tables.*
 
 2. Create new macro in Excel.
 3. Open Code window for editing macros.
-4. Open Tool -> References and check Microsoft VBScript Regular Expressions 5.5. Then clicl OK.
+4. Open Tool -> References and check Microsoft VBScript Regular Expressions 5.5. Then click OK.
 5. Import vba_ddl_generator.bas and TableHeader.cls into Code window.
 6. Open TableHeader class file and edit code below, depending on table definition written in spreadsheets.
 
