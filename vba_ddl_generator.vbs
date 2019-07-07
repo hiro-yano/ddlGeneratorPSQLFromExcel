@@ -24,16 +24,16 @@ Public Function getRegexp(target, matchPattern, Optional ignoreCases = True, Opt
 
 End Function
 
-Function CreateTable(saveName, cellTableName, tableHeader As tableHeader)
+Function CreateTable(saveName, tableHeader As tableHeader)
     Dim Str As String
     Str = ""
     Dim tableName As String
-    tableName = Range(cellTableName).Value
+    tableName = Range(tableHeader.cellTableName).Value
     Dim fields As String
     fields = ""
     Dim alters As String
     alters = ""
-    Dim lineNo As Integer: lineNo = lineNoFirstCol
+    Dim lineNo As Integer: lineNo = tableHeader.lineNoFirstCol
     Dim pkey: pkey = ""
     Do
         Dim nn As String
