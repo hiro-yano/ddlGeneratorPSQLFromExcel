@@ -12,11 +12,6 @@ require below library
 * Microsoft Excel 16.0 Object Library
 * Microsoft Forms 2.0 Object Library
 
-## Sample 
-Please refer to sample.xlsm in this repository.
-The below diagram shows the ER diagram of data model written in sample.xlsm.
-![ER diagram](https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/develop/er_diagram.png)
-
 ## Usage
 1. create new macro in Excel.
 2. import vba_ddl_generator.bas and TableHeader.cls into Code window for editing macros.
@@ -36,6 +31,10 @@ Private Sub Class_Initialize()
     rowCommentCol = "G"          'row name of comment on each column
 End Sub
 ```
+## Sample 
+Please refer to sample.xlsm in this repository.
+The below diagram shows the ER diagram of data model written in sample.xlsm.
+![ER diagram](https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/develop/er_diagram.png)
 
 ## Contribution
 
