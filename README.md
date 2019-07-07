@@ -14,6 +14,8 @@ require below library
 
 ## Sample 
 Please refer to sample.xlsm in this repository.
+The below diagram shows the ER diagram of data model written in sample.xlsm.
+![ER diagram](https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/develop/er_diagram.png)
 
 ## Usage
 1. create new macro in Excel.
@@ -34,7 +36,6 @@ Private Sub Class_Initialize()
     rowCommentCol = "G"          'row name of comment on each column
 End Sub
 ```
-4. 
 
 ## Contribution
 
