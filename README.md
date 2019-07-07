@@ -6,29 +6,28 @@ This VBA generates DDL for Postgresql from excel sheets.
 You can execute this program as Excel macro.
 
 ## Requirement
-require below library
 * Visual Basic For Applications
 * Microsoft VBScript Regular Expressions 5.5
 * Microsoft Excel 16.0 Object Library
 * Microsoft Forms 2.0 Object Library
 
 ## Usage
-1. create new macro in Excel.
-2. import vba_ddl_generator.bas and TableHeader.cls into Code window for editing macros.
-3. open TableHeader class file and edit code below, depending on table definition written in spreadsheets.
+1. Create new macro in Excel.
+2. Import vba_ddl_generator.bas and TableHeader.cls into Code window for editing macros.
+3. Open TableHeader class file and edit code below, depending on table definition written in spreadsheets.
 
 ```vbs
 Private Sub Class_Initialize()
     cellTableName = "B1"         'Cell of table name
-    rowCommentTbl = "E1"         'row name of comment on a table
+    rowCommentTbl = "E1"         'Row name of comment on a table
     lineNoFirstCol = 4           'First column number of filelds
-    rowColName = "A"             'row name of physical column name
-    rowDType = "B"               'row name of data type
-    rowLen = "C"                 'row name of length
-    rowPkey = "D"                'row name of PK which is specified or not
-    rowNotNull = "E"             'row name of NN which is specified or not
-    rowConstr = "F"              'row name of Constrains(FK,UNIQUE)
-    rowCommentCol = "G"          'row name of comment on each column
+    rowColName = "A"             'Row name of physical column name
+    rowDType = "B"               'Row name of data type
+    rowLen = "C"                 'Row name of length
+    rowPkey = "D"                'Row name of PK which is specified or not
+    rowNotNull = "E"             'Row name of NN which is specified or not
+    rowConstr = "F"              'Row name of Constrains(FK,UNIQUE)
+    rowCommentCol = "G"          'Row name of comment on each column
 End Sub
 ```
 ## Sample 
