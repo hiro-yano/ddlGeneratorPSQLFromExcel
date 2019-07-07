@@ -2,7 +2,7 @@ ddlGeneratorPSQLFromExcel
 ====
 
 ## Description
-This VBA generates DDL for Postgresql from excel sheets.
+This VBA generates DDL sequence in SQL for Postgresql from excel sheets.
 You can execute this program as Excel macro.
 
 ## Requirement
@@ -12,9 +12,14 @@ You can execute this program as Excel macro.
 * Microsoft Forms 2.0 Object Library
 
 ## Usage
-1. Create new macro in Excel.
-2. Import vba_ddl_generator.bas and TableHeader.cls into Code window for editing macros.
-3. Open TableHeader class file and edit code below, depending on table definition written in spreadsheets.
+1. Write table definition in Excel like sample.xlsm.
+<aside class="notice">
+You must define a PRIMARY KEY on the "id" column.
+Then, this VBA generates correct sql syntax.
+</aside>
+2. Create new macro in Excel.
+3. Import vba_ddl_generator.bas and TableHeader.cls into Code window for editing macros.
+4. Open TableHeader class file and edit code below, depending on table definition written in spreadsheets.
 
 ```vbs
 Private Sub Class_Initialize()
