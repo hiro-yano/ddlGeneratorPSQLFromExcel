@@ -58,4 +58,5 @@ MIT
 
 # Thanks
 c0metssd @ ウィキ - excelからDDLを作成するマクロ例
+
 https://www62.atwiki.jp/c0metssd/pages/81.html
