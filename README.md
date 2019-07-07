@@ -39,8 +39,8 @@ Private Sub Class_Initialize()
 End Sub
 ```
 ## Sample 
-Please refer to sample.xlsm in this repository.
-https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/sample.xlsm
+Please refer to sample.xlsx in this repository.
+https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/sample.xlsx
 
 The below diagram shows the ER diagram of data model written in sample.xlsm.
 <img src="https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/er_diagram.png" width="600px">
