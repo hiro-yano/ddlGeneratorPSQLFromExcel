@@ -1,8 +1,10 @@
 Option Explicit
 
 Const ownerName = "postgres"
-'ignoreCase_: ingnore upper or lower cases, global_: one pattern string is matched multiple times
-Private Function getRegexp(target, matchPattern, Optional ignoreCase_ = True, Optional global_ = True)
+
+Function getRegexp(target, matchPattern, Optional ignoreCase_ = True, Optional global_ = True) As String
+
+    'ignoreCase_: ingnore upper or lower cases, global_: one pattern string is matched multiple times
 
     'NOTE
     'add the following reference to your VBA : Tools -> References -> Microfoft VBScript Regular Expressions
@@ -19,10 +21,10 @@ Private Function getRegexp(target, matchPattern, Optional ignoreCase_ = True, Op
     
     Set matches = regex.Execute(target)
 
-    If matches Is Nothing Then
-        getRegexp = ""
-    Else
-        getRegexp = match(0)
+    getRegexp = ""
+    
+    If matches Is Not Nothing Then
+        getRegexp = matches(0)
     End If
 
 End Function
