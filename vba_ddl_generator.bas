@@ -1,3 +1,4 @@
+Attribute VB_Name = "generateDDL"
 Option Explicit
 
 Const ownerName = "postgres"
@@ -46,7 +47,7 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
         If StrComp("y", Range(tableHeader.rowNotNull & lineNo).Value) = 0 Then
             nn = " NOT NULL"
         ElseIf StrComp("", Range(tableHeader.rowNotNull & lineNo).Value) <> 0 Then
-            MsgBox "Unexpected string in Cell(" & tableHeader.rowNotNull & lineNo & ")：" & Range(tableHeader.rowNotNull & lineNo).Value
+            MsgBox "Unexpected string in Cell(" & tableHeader.rowNotNull & lineNo & ")�F" & Range(tableHeader.rowNotNull & lineNo).Value
         Else
             nn = ""
         End If
@@ -98,7 +99,7 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
             End If
             pkey = pkey & ColumnName
         ElseIf StrComp("", Range(tableHeader.rowPkey & lineNo).Value) <> 0 Then
-            MsgBox "Unexpected string in Cell (" & tableHeader.rowPkey & lineNo & ")：" & Range(tableHeader.rowPkey & lineNo).Value
+            MsgBox "Unexpected string in Cell (" & tableHeader.rowPkey & lineNo & ")�F" & Range(tableHeader.rowPkey & lineNo).Value
             Exit Function
         End If
     
@@ -176,7 +177,7 @@ Private Function SetSaveDir()
             Err.Clear
         End If
         If Dir(myPath, vbDirectory) = "" Then
-            MsgBox "Saving directory doesn't exist. saving directory： " & myPath
+            MsgBox "Saving directory doesn't exist. saving directory�F " & myPath
             Exit Function
         End If
     On Error GoTo 0
@@ -212,6 +213,7 @@ Private Function FileWrite(saveName, data)
 End Function
 
 Sub generateDDL()
+Attribute generateDDL.VB_ProcData.VB_Invoke_Func = "g\n14"
     Dim saveName
     Dim saveDir
     saveDir = SetSaveDir()

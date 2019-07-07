@@ -6,9 +6,19 @@ This VBA generates DDL for Postgresql from excel sheets.
 You can execute this program as Excel macro.
 
 ## Requirement
+require below library
+* Visual Basic For Applications
+* Microsoft VBScript Regular Expressions 5.5
+* Microsoft Excel 16.0 Object Library
+* Microsoft Forms 2.0 Object Library
+
+## Sample 
+Please refer to sample.xlsm in this repository.
 
 ## Usage
-1. modify TableHeader class
+1. create new macro in Excel.
+2. import vba_ddl_generator.bas and TableHeader.cls into Code window for editing macros.
+3. open TableHeader class file and edit code below, depending on table definition written in spreadsheets.
 
 ```vbs
 Private Sub Class_Initialize()
@@ -24,14 +34,22 @@ Private Sub Class_Initialize()
     rowCommentCol = "G"          'row name of comment on each column
 End Sub
 ```
-
-## Install
+4. 
 
 ## Contribution
 
+1. Fork it!
+2. Create your feature branch: `git checkout -b my-new-feature`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin my-new-feature`
+
+*Remember that we have a pre-push hook with steps that analyzes and prevents mistakes.*
+
+**After your pull request is merged**, you can safely delete your branch.
+
 ## Licence
 
-[MIT](https://github.com/tcnksm/tool/blob/master/LICENCE)
+MIT
 
 # Thanks
 c0metssd @ ウィキ - excelからDDLを作成するマクロ例
