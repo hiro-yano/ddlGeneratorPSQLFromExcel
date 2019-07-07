@@ -33,7 +33,7 @@ End Sub
 ## Sample 
 Please refer to sample.xlsm in this repository.
 The below diagram shows the ER diagram of data model written in sample.xlsm.
-![ER diagram](https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/develop/er_diagram.png)
+![ER diagram](https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/er_diagram.png)
 
 ## Contribution
 
