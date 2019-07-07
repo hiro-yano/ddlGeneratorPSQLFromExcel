@@ -24,7 +24,7 @@ Public Function getRegexp(target, matchPattern, Optional ignoreCases = True, Opt
 
 End Function
 
-Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDType, rowLen, rowPkey, rowConstr, rowColName, rowCommentCol, rowCommentTbl)
+Function CreateTable(saveName, cellTableName, tableHeader As tableHeader)
     Dim Str As String
     Str = ""
     Dim tableName As String
@@ -37,19 +37,19 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
     Dim pkey: pkey = ""
     Do
         Dim nn As String
-        If StrComp("y", Range(rowNotNull & lineNo).Value) = 0 Then
+        If StrComp("y", Range(tableHeader.rowNotNull & lineNo).Value) = 0 Then
             nn = " NOT NULL"
-        ElseIf StrComp("", Range(rowNotNull & lineNo).Value) <> 0 Then
-            MsgBox "Unexpected string in Cell(" & rowNotNull & lineNo & ")：" & Range(rowNotNull & lineNo).Value
+        ElseIf StrComp("", Range(tableHeader.rowNotNull & lineNo).Value) <> 0 Then
+            MsgBox "Unexpected string in Cell(" & tableHeader.rowNotNull & lineNo & ")：" & Range(tableHeader.rowNotNull & lineNo).Value
         Else
             nn = ""
         End If
         
         Dim dtype As String
         Dim tVal As String
-        tVal = Range(rowDType & lineNo).Value
+        tVal = Range(tableHeader.rowDType & lineNo).Value
         If StrComp("varchar", tVal) = 0 Then
-            Dim dlen As String: dlen = Range(rowLen & lineNo).Value
+            Dim dlen As String: dlen = Range(tableHeader.rowLen & lineNo).Value
             If dlen = "" Then
                 MsgBox "length n of varchar(n) is not specified."
                 Exit Function
@@ -82,27 +82,27 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
             fields = fields & ","
         End If
         
-        Dim ColumnName As String: ColumnName = Range(rowColName & lineNo).Value
+        Dim ColumnName As String: ColumnName = Range(tableHeader.rowColName & lineNo).Value
         fields = fields & " " & ColumnName & " " & dtype & nn & vbNewLine
         
         ' Primary Key
-        If StrComp("y", Range(rowPkey & lineNo).Value) = 0 Then
+        If StrComp("y", Range(tableHeader.rowPkey & lineNo).Value) = 0 Then
             If Len(pkey) <> 0 Then
                 pkey = pkey & ","
             End If
             pkey = pkey & ColumnName
-        ElseIf StrComp("", Range(rowPkey & lineNo).Value) <> 0 Then
-            MsgBox "Unexpected string in Cell (" & rowPkey & lineNo & ")：" & Range(rowPkey & lineNo).Value
+        ElseIf StrComp("", Range(tableHeader.rowPkey & lineNo).Value) <> 0 Then
+            MsgBox "Unexpected string in Cell (" & tableHeader.rowPkey & lineNo & ")：" & Range(tableHeader.rowPkey & lineNo).Value
             Exit Function
         End If
     
-        Dim fkWork: fkWork = Range(rowConstr & lineNo).Value
+        Dim fkWork: fkWork = Range(tableHeader.rowConstr & lineNo).Value
 
         ' Unique
         If fkWork Like "*UNIQUE*" Then
         
             Dim unique: unique = ""
-            unique = getRegexp(fkWork, "UNIQUE(.*?))")
+            unique = getRegexp(fkWork, "UNIQUE(.*?))")
 
             If unique <> "" Then
                 unique = Replace(fkWork, "UNIQUE", "")
@@ -116,7 +116,7 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
         If fkWork Like "*REFERENCES*" Then
         
             Dim references: references = ""
-            references = getRegexp(fkWork, "REFERENCES(.*?))")
+            references = getRegexp(fkWork, "REFERENCES(.*?))")
 
             If references <> "" Then
                 Dim tblName: tblName = Replace(references, "REFERENCES(", "")
@@ -130,16 +130,16 @@ Function CreateTable(saveName, cellTableName, lineNoFirstCol, rowNotNull, rowDTy
         End If
     
         ' Comment on each column
-        alters = alters & "COMMENT ON COLUMN " & tableName & "." & ColumnName & " IS '" & Range(rowCommentCol & lineNo).Value & "';" & vbNewLine
+        alters = alters & "COMMENT ON COLUMN " & tableName & "." & ColumnName & " IS '" & Range(tableHeader.rowCommentCol & lineNo).Value & "';" & vbNewLine
 
         lineNo = lineNo + 1
-    Loop While Range(rowCommentCol & lineNo).Value <> ""
+    Loop While Range(tableHeader.rowCommentCol & lineNo).Value <> ""
     
     ' Comment on table
     If Len(pkey) <> 0 Then
         alters = alters & "ALTER TABLE ONLY " & tableName & " ADD CONSTRAINT m_" & tableName & "_pkey PRIMARY KEY (" & pkey & ");" & vbNewLine
     End If
-    alters = alters & "COMMENT ON TABLE " & tableName & " IS '" & Range(rowCommentTbl).Value & "';" & vbNewLine
+    alters = alters & "COMMENT ON TABLE " & tableName & " IS '" & Range(tableHeader.rowCommentTbl).Value & "';" & vbNewLine
     alters = alters & "ALTER TABLE public." & tableName & " OWNER TO " & ownerName & ";" & vbNewLine
     
     '
@@ -212,7 +212,7 @@ Sub generateDDL()
     Dim n As Date
     n = now
     
-    saveName = saveDir & "ddl_" & Format(n, "yyyy-mm-dd-hh-mm-ss") & ".sql"
+    saveName = saveDir & "ddl_" & Format(n, "yyyy-mm-dd-hh-mm-ss") & ".sql"
     
     Dim sqlStr As String
     sqlStr = ""
@@ -222,23 +222,9 @@ Sub generateDDL()
     Do
         ActiveSheet.Next.Activate
         
-        Dim cellTableName      : cellTableName = "B1"       'Cell of table name
-        Dim rowCommentTbl      : rowCommentTbl = "E1"       'row name of comment on a table
-        
-        Dim lineNoFirstCol     : lineNoFirstCol = 4         'First column number of filelds
-        
-        Dim rowColName         : rowColName = "A"           'row name of physical column name
-        Dim rowDType           : rowDType = "B"             'row name of data type
-        Dim rowLen             : rowLen = "C"               'row name of length
-        Dim rowPkey            : rowPkey = "D"              'row name of PK which is specified or not
-        Dim rowNotNull         : rowNotNull = "E"           'row name of NN which is specified or not
-        Dim rowReferences      : rowReferences = "F"        'row name of FK which is specified or not
-        Dim rowReferencingTable: rowReferencingTable = "G"  'row name of Referencing Table list
-        Dim rowUnique          : rowUnique = "H"            'row name of UNIQUE which is specified or not
-        Dim rowUniqueColumn    : rowUniqueColumn = "I"      'row name of Unique Column
-        Dim rowCommentCol      : rowCommentCol = "J"        'row name of comment on each column
+        Set tableHeader = New tableHeader
 
-        sqlStr = sqlStr & CreateTable(saveName, cellTableName, rowCommentTbl, lineNoFirstCol, rowColName    , rowDType      , rowLen        , rowPkey       , rowNotNull    , rowReferences , rowReferencing, rowUnique     , rowUniqueColum, rowCommentCol      )
+        sqlStr = sqlStr & CreateTable(saveName, tableHeader)
 
     Loop While ActiveSheet.Name <> Sheets(Sheets.Count).Name ' Loop until last worksheets
     
