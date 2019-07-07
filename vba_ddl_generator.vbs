@@ -1,30 +1,33 @@
 Option Explicit
 
 Const ownerName = "postgres"
+'ignoreCase_: ingnore upper or lower cases, global_: one pattern string is matched multiple times
+Private Function getRegexp(target, matchPattern, Optional ignoreCase_ = True, Optional global_ = True)
 
-'ignoreCases: ingnore upper or lower cases, global_: one pattern string is matched multiple times
-Public Function getRegexp(target, matchPattern, Optional ignoreCases = True, Optional global_ = True)
+    'NOTE
+    'add the following reference to your VBA : Tools -> References -> Microfoft VBScript Regular Expressions
+    Dim regex As Object
+    Set regex = CreateObject("VBScript.RegExp")
 
-    Set re = CreateObject("VBScript.RegExp")
-
-    With re
+    With regex
         .Pattern = matchPattern
-        .ignoreCases = ignoreCases
+        .ignoreCase = ignoreCase_
         .Global = global_
     End With
+    
+    Dim matches As MatchCollection
+    
+    Set matches = regex.Execute(target)
 
-    Dim result As Object
-    result = re.Execute(target)
-
-    If result.Count > 0 Then
-        getRegexp = result(0)
-    Else
+    If matches Is Nothing Then
         getRegexp = ""
+    Else
+        getRegexp = match(0)
     End If
 
 End Function
 
-Function CreateTable(saveName, tableHeader As tableHeader)
+Private Function CreateTable(saveName, tableHeader As tableHeader)
     Dim Str As String
     Str = ""
     Dim tableName As String
@@ -152,7 +155,7 @@ Function CreateTable(saveName, tableHeader As tableHeader)
     CreateTable = Str
 End Function
 
-Function SetSaveDir()
+Private Function SetSaveDir()
     '*** Set saving path
     Dim myPath As String            'path_dir
     Dim ShellApp As Object
@@ -175,7 +178,7 @@ Function SetSaveDir()
     SetSaveDir = myPath
 End Function
 
-Sub FileWrite(saveName, data)
+Private Function FileWrite(saveName, data)
     Const adTypeText = 2            'Const value to output
     Const adSaveCreateOverWrite = 2 'Const value to output
     Const adWriteLine = 1
@@ -199,7 +202,7 @@ Sub FileWrite(saveName, data)
     'delete an object from memory
     Set mySrm = Nothing
 
-End Sub
+End Function
 
 Sub generateDDL()
     Dim saveName
