@@ -14,7 +14,7 @@ You can execute this program as Excel macro.
 ## Usage
 1. Write table definition in Excel like sample.xlsm.
 
-NOTE: * You must define a PRIMARY KEY on the "id" column.
+NOTE: *You must define a PRIMARY KEY on the "id" column.
 Then, this VBA generates correct sql syntax.*
 
 2. Create new macro in Excel.
