@@ -111,8 +111,6 @@ Function CreateTable(saveName, tableHeader As tableHeader)
                 alters = alters & "ALTER TABLE ONLY " & tableName & " ADD CONSTRAINT m_" & tableName & "_" & ColumnName & "_uq UNIQUE (" & ColumnName & ");" & vbNewLine
             End If
         End If
-
-        Dim fkWork: fkWork = Range(tableHeader.rowConstr & lineNo).Value
         
         ' References
         If fkWork Like "*REFERENCES*" Then
@@ -224,6 +222,8 @@ Sub generateDDL()
     Do
         ActiveSheet.Next.Activate
         
+        Dim tableHeader As tableHeader
+        
         Set tableHeader = New tableHeader
 
         sqlStr = sqlStr & CreateTable(saveName, tableHeader)
@@ -236,3 +236,4 @@ Sub generateDDL()
     Application.ScreenUpdating = True
     MsgBox "done"
 End Sub
+
