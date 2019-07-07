@@ -218,7 +218,7 @@ Sub DDL作成_Click()
     Do
         ActiveSheet.Next.Activate
         
-        Dim cellTableName: cellTableName   = "V2"  'テーブル名のセル
+        Dim cellTableName: cellTableName   = "A1"  'テーブル名のセル
         Dim lineNoFirstCol: lineNoFirstCol = 5     'フィールドの開始行番号
         Dim rowNotNull: rowNotNull         = "X"   'NNの列名
         Dim rowDType:rowDType              = "R"   'データ型の列名
