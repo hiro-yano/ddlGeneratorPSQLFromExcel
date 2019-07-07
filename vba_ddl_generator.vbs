@@ -2,32 +2,33 @@ Option Explicit
 
 Const ownerName = "postgres"
 
-Function getRegexp(target, matchPattern, Optional ignoreCase_ = True, Optional global_ = True) As String
+'ignoreCase_: ingnore upper or lower cases, global_: one pattern string is matched multiple times
 
-    'ignoreCase_: ingnore upper or lower cases, global_: one pattern string is matched multiple times
-
-    'NOTE
-    'add the following reference to your VBA : Tools -> References -> Microfoft VBScript Regular Expressions
-    Dim regex As Object
+Public Function getRegexp(target, matchPattern, Optional ignoreCase_ = True, Optional global_ = True)
+    
+    Dim regex As RegExp
+    Dim matches As MatchCollection
+    
     Set regex = CreateObject("VBScript.RegExp")
 
     With regex
         .Pattern = matchPattern
         .ignoreCase = ignoreCase_
         .Global = global_
+        Set matches = .Execute(target)
     End With
-    
-    Dim matches As MatchCollection
-    
-    Set matches = regex.Execute(target)
 
-    getRegexp = ""
-    
-    If matches Is Not Nothing Then
+    If matches.Count <> 0 Then
         getRegexp = matches(0)
+    Else
+        getRegexp = ""
     End If
+    
+    Set regex = Nothing
+    Set matches = Nothing
 
 End Function
+
 
 Private Function CreateTable(saveName, tableHeader As tableHeader)
     Dim Str As String
@@ -64,7 +65,7 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
             dtype = tVal
         ElseIf StrComp("boolean", tVal) = 0 Then
             dtype = tVal
-        ElseIf StrComp("int", tVal) = 0 Then
+        ElseIf StrComp("integer", tVal) = 0 Then
             dtype = "integer"
         ElseIf StrComp("timestamp", tVal) = 0 Then
             dtype = "timestamp with time zone"
@@ -103,11 +104,16 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
     
         Dim fkWork: fkWork = Range(tableHeader.rowConstr & lineNo).Value
 
+        Debug.Print "fkey:" & fkWork
+        
         ' Unique
-        If fkWork Like "*UNIQUE*" Then
+        If InStr(fkWork, "UNIQUE") <> 0 Then
         
             Dim unique: unique = ""
-            unique = getRegexp(fkWork, "UNIQUE(.*?))")
+            
+            unique = getRegexp(fkWork, "UNIQUE\(.*\)", False)
+            
+            Debug.Print "unique:" & unique
 
             If unique <> "" Then
                 unique = Replace(fkWork, "UNIQUE", "")
@@ -118,10 +124,12 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
         End If
         
         ' References
-        If fkWork Like "*REFERENCES*" Then
+        If InStr(fkWork, "REFERENCES") <> 0 Then
         
             Dim references: references = ""
-            references = getRegexp(fkWork, "REFERENCES(.*?))")
+            references = getRegexp(fkWork, "REFERENCES\(.*\)", False)
+            
+            Debug.Print "references:" & references
 
             If references <> "" Then
                 Dim tblName: tblName = Replace(references, "REFERENCES(", "")
@@ -138,7 +146,8 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
         alters = alters & "COMMENT ON COLUMN " & tableName & "." & ColumnName & " IS '" & Range(tableHeader.rowCommentCol & lineNo).Value & "';" & vbNewLine
 
         lineNo = lineNo + 1
-    Loop While Range(tableHeader.rowCommentCol & lineNo).Value <> ""
+        
+    Loop While Range(tableHeader.rowColName & lineNo).Value <> ""
     
     ' Comment on table
     If Len(pkey) <> 0 Then
@@ -153,6 +162,8 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
     Str = Str & fields
     Str = Str & ");" & vbNewLine
     Str = Str & alters & vbNewLine
+    
+    Debug.Print Str
     
     CreateTable = Str
 End Function
